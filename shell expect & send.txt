@@ -1,0 +1,20 @@
+參考網址
+http://www.cnblogs.com/iloveyoucc/archive/2012/05/11/2496433.html
+
+
+執行位置
+#!/usr/bin/expect
+檔名
+*.tcl
+
+
+set timeout 30 (設定等待時間30秒)
+
+spawn <command> (執行後面所下的指令)
+spawn ssh root@nxstn
+
+expect <string> (判斷上次輸出結果是否有特定字串，如果有搜尋到則立即返回，否則直到等待時間結束才返回)
+expect "Password"
+
+send "<string>\r" (交互動作，與手工輸入密碼相同) (\r->carriage return-CR-迴車， 回到行首； \n->linefeed-LF，斷行)
+send "password\r"

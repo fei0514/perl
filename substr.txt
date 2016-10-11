@@ -1,0 +1,14 @@
+substr EXPR, OFFSET, LEN, REPLACEMENT 
+
+substr EXPR, OFFSET, LEN 
+
+substr EXPR, OFFSET
+
+substr 字串,偏移量(從第幾個位子開始),長度(取幾個字),替換(還不會用)
+
+偏移量從0開始
+$temp = substr("okay", 2);
+print "Substring valuye is $temp\n";
+
+$temp = substr("okay", 1,2);
+print "Substring valuye is $temp\n";
