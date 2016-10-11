@@ -1,2 +1,0 @@
-# Perl也有和C語言的break和continue一樣的指令，Perl叫它做 last 和 next (較口語化)。
-# last是跳出現在所在的迴圈，next則是跳過下面的指令直接執行下一次的迴圈。
