@@ -4,9 +4,9 @@ substr EXPR, OFFSET, LEN
 
 substr EXPR, OFFSET
 
-substr ¦r¦ê,°¾²¾¶q(±q²Ä´X­Ó¦ì¤l¶}©l),ªø«×(¨ú´X­Ó¦r),´À´«(ÁÙ¤£·|¥Î)
+substr å­—ä¸²,åç§»é‡(å¾ç¬¬å¹¾å€‹ä½å­é–‹å§‹),é•·åº¦(å–å¹¾å€‹å­—),æ›¿æ›(é‚„ä¸æœƒç”¨)
 
-°¾²¾¶q±q0¶}©l
+åç§»é‡å¾0é–‹å§‹
 $temp = substr("okay", 2);
 print "Substring valuye is $temp\n";
 
