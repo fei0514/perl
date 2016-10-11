@@ -1,6 +1,12 @@
 split(/type/,source)
 
 eg:
+　$IP = "192.168.1.50";
   @filter = split(//,$IP); #將當前值的內容，以逗點做為分隔。
-
-假設
+  
+  output:
+  @filter = 192 168 1 50
+  $filter[0] = 192
+  $filter[1] = 168
+  $filter[2] = 1
+  $filter[3] = 50
