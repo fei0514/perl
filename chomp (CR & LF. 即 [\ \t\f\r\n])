@@ -1,0 +1,8 @@
+chomp 會一視同仁地將所傳入文字行的最後一個字元移除（並傳回），不論它是否為換行字元；而chomp 則只會移除「記錄結束標錄」（end of recordmarker；通常是指“\n”）
+e.g.
+  chomp($number = <STDIN>); # 輸入數字與刪除換行字元
+
+其實與下面同義：
+
+  $number = <STDIN>; # 輸入數字
+  chomp($number); # 刪除換行字元
