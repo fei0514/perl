@@ -1,0 +1,4 @@
+1.$name =>字串
+2.@name =>陣列
+3.%name =>hash
+4.&name =>副程式
