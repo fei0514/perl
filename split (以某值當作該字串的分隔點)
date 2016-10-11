@@ -1,4 +1,6 @@
 split(/type/,source)
 
 eg:
-  @filter = split(/,/,$_); #將當前值的內容，以逗點做為分隔。
+  @filter = split(//,$IP); #將當前值的內容，以逗點做為分隔。
+
+假設
