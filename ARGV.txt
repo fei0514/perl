@@ -1,9 +1,0 @@
-Perl㏑把计い$ARGV[0] 琌材把计
-ぃ琌㏑嘿㏑嘿$0
-
-
-eg:
-
-./perl.pl abc
-
-abc ->$ARGV[0]

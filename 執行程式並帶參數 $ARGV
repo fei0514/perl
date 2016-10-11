@@ -1,0 +1,9 @@
+Perl的命令列參數中，$ARGV[0] 是第一個參數，是命令名稱，命令名稱存在$0。
+@ARGV 是內建的陣列, 不必宣告就可以拿來用. 裡面存放著 command line argument 命令列上的參數
+
+
+eg:
+
+./perl.pl abc
+
+abc ->$ARGV[0]
