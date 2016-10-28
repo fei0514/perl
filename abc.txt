@@ -54,7 +54,8 @@ interface TenGigabitEthernet1/1/4
  channel-group 10 mode active
 
 
-
+Gi 1/0/1 ~ Gi 1/0/48  雙絞線
+ten 1/1/3 ~ ten 1/1/4  Fibre cable
 
 
 Port      Name               Status       Vlan       Duplex  Speed Type 
