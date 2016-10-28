@@ -1,0 +1,112 @@
+interface GigabitEthernet1/0/1
+ description To Core-SW P1
+ switchport mode trunk
+ load-interval 30
+!
+interface GigabitEthernet1/0/2
+ description To Core-SW P2
+ switchport mode trunk
+ load-interval 30
+!
+interface GigabitEthernet1/0/3
+ description RC09_04 VNX5500 Data Mover A NIC1
+ switchport access vlan 240
+ switchport mode access
+ channel-group 20 mode on
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface GigabitEthernet1/0/4
+ description RC09_05 VNX5500 Data Mover A NIC2
+ switchport access vlan 240
+ switchport mode access
+ channel-group 20 mode on
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+!
+interface GigabitEthernet1/0/5
+ description hxtn_d74
+ switchport access vlan 240
+ switchport mode access
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+
+
+interface GigabitEthernet1/1/1
+ switchport access vlan 240
+ switchport mode access
+ speed nonegotiate
+ channel-group 30 mode active
+!
+interface GigabitEthernet1/1/2
+ switchport access vlan 240
+ switchport mode access
+ channel-group 30 mode active
+!
+interface TenGigabitEthernet1/1/3
+ description To NxsTn P1
+ switchport access vlan 240
+ channel-group 10 mode active
+!
+interface TenGigabitEthernet1/1/4
+ description To NxsTn P2
+ switchport access vlan 240
+ channel-group 10 mode active
+
+
+
+
+
+Port      Name               Status       Vlan       Duplex  Speed Type 
+Gi1/0/1   To Core-SW P1      connected    trunk      a-full a-1000 10/100/1000BaseTX
+Gi1/0/2   To Core-SW P2      connected    trunk      a-full a-1000 10/100/1000BaseTX
+Gi1/0/3   RC09_04 VNX5500 Da connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/4   RC09_05 VNX5500 Da connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/5   hxtn_d74           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/6   hxtn_d75           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/7   hxtn_d76           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/8   hxtn_d77           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/9   hxtn_d73           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/10  hxtn_d70           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/11  hxtn_d71           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/12  hxtn_d72           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/13  hxtn_d50           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/14  hxtn_d58           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/15  hxtn_d67           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/16  hxtn_d28           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/17  hxtn_d56           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/18  hxtn_d57           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/19  hxtn_d54           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/20  hxtn_d55           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/21  hxtn_d48           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/22  hxtn_d53           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/23  hxtn_d40           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/24  hxtn_d43           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/25  hxtn_d69           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/26  hxtn_d78           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/27  hxtn_d64           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/28  hxtn_d65           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/29  hxtn_d62           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/30  hxtn_d63           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/31  hxtn_d59           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/32  hxtn_d61           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/33  hxtn_d51           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/34  hxtn_d60           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/35  hxtn_d80           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/36  hxtn_d81           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/37  hxtn_d24           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/38  hxtn_d82           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/39  hxtn_d83           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/40  hxtn_d45           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/41  hxtn_d44           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/42  hxtn_d46           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/43  hxtn_d47           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/44  hxtn_d38           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/45  hxtn_d35           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/46  hxtn_d34           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/47  hxtn_d79           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/0/48  hxtn_d32           connected    240        a-full a-1000 10/100/1000BaseTX
+Gi1/1/1                      notconnect   240          auto   1000 1000BaseSX SFP
+Gi1/1/2                      notconnect   240          auto   1000 1000BaseSX SFP
+Te1/1/3   To NxsTn P1        connected    240          full    10G SFP-10GBase-SR
+Te1/1/4   To NxsTn P2        connected    240          full    10G SFP-10GBase-SR
