@@ -1,0 +1,6 @@
+use Switch
+
+switch($a){
+  case "123"  {print "123"}
+  case "987"  {print "789"}
+  }
