@@ -1,0 +1,341 @@
+#!/usr/bin/perl
+
+use strict;
+use Data::Dumper;
+use Term::ANSIColor;
+use Cwd;
+
+## Tool environment
+$ENV{NOVAS_FSDB_ENV_DISABLE_OLD_FSDB_VER_MSG} = "off";
+$ENV{FSDB_NO_SIM_VERSION_INFO} = "on";
+##
+
+my $precision = 3;
+my $orgLog = ".convert_org";  ##fsdbreport log
+#my $DefaultLog = "Autocheck.log"; ##finally log
+my $DEL_orgLog = "Y";
+my $collectLog = "N";
+my $script = `basename $0`;
+chomp($script);
+my $cwd = getcwd();
+
+##
+my ($fsdb,$time,$sig_bn,$sig_en,$sig_name,$logfile,$mode) = ('')x7;
+
+if(!@ARGV){
+  ($fsdb,$time,$sig_bn,$sig_en,$sig_name) = &PollArg;
+}else{
+  ($fsdb,$time,$sig_bn,$sig_en,$sig_name,$logfile,$mode) = &Parse;
+}
+
+#if($logfile eq ""){
+#  $logfile = $DefaultLog;
+#}
+
+#print "$fsdb,$time,$sig_bn,$sig_en,$sig_name,$logfile\n";
+#exit;
+
+####################
+## dump fsdb report
+####################
+my $cmd = qq(fsdbreport1712 $fsdb -bt $time -et $time -nolog -o $orgLog);
+    #my $sigCmd = qq("v(out<$i>)" -precision $precision);
+    #
+if(($sig_bn =~ /^\d+/) && ($sig_en =~ /^\d+/)){ ## v(out<1>)~v(out<100>)
+  for(my $i=$sig_bn; $i <= $sig_en; $i++){
+    my $regName;
+    if(($sig_name =~ /^(\w+)-(\w+)/) && ($mode == 1)){
+      $regName = "$1($2<$i>)";
+    }elsif(($sig_name =~ /^(\w+)-(\w+)/) && ($mode == 2)){
+      $regName = "$1($2\\\[$i\\\])";
+    }
+    my $sigCmd = qq("$regName" -precision $precision);
+    if( $cmd =~ /\-s/){
+      $cmd = sprintf("%s %s",$cmd,$sigCmd);
+    }else{
+      $cmd = sprintf("%s -s %s",$cmd,$sigCmd);
+    }
+  }
+}elsif(($sig_bn eq "") && ($sig_en eq "")){  ##v(psclk),v(pslv2)....
+  my $regName;
+  if($sig_name =~ /^(\w+)-(\w+)/){
+    $regName = "$1($2)";
+  }
+  my $sigCmd = qq("$regName" -precision $precision);
+  $cmd = sprintf("%s -s %s",$cmd,$sigCmd);
+
+}else{
+  print "Internal error, please contact author(cf_wu).\n";
+}
+#print "$cmd\n";
+#exit;
+system("$cmd");
+
+####################
+## parsing report and output new report
+####################
+my @sig_name;
+my @sig_value;
+open(IF,"$orgLog") or die $!;
+while(<IF>){
+  chomp;
+  next if($_ =~ /==/);
+  if($_ =~ /v\(\w+/){
+    @sig_name = split(/\s+/,$_);
+  }elsif($_ =~ /e\+/){
+    @sig_value = split(/\s+/,$_);
+  }  
+}
+close IF;
+
+##Convert E value
+for(my $i=0; $i <= $#sig_value; $i++){
+  my $value = $sig_value[$i];
+  if($value =~ /(\S+)e([\+|\-])(\d+)(\w+)/){
+    my $x = sprintf("%d",$3);
+    my $new = $1*(10**($2.$x));
+    #$sig_value[$i] = $new.$4;
+    $sig_value[$i] = $new; ##disable unit
+  }
+}
+
+open(OF,"> $logfile");
+print OF "$cwd/$fsdb\n";
+for(my $i=0; $i <= $#sig_name; $i++){
+  #print OF "$sig_name[$i]\t$sig_value[$i]\n";
+  my $out = sprintf("%-10s\t%6s",$sig_name[$i],$sig_value[$i]);
+  print OF "$out\n";
+}
+close OF;
+
+## Delete fsdbreport log file
+if($DEL_orgLog eq "Y"){
+  system("rm -f $orgLog");
+}
+
+if(($collectLog eq "Y") && (-f $logfile)){
+  system("cp $logfile /home/users/cfwu/Util/Autocheck/LOG/auto_$ENV{USER}_$$");
+}
+
+
+
+
+##SUB
+
+## polling ARGV
+sub PollArg{
+  my ($fsdb,$time,$sig_bn,$sig_en,$sig_snum,$sig_name,$logfile) = ('')x7;
+
+##FSDB
+  print "Enter FSDB file: \n";
+  $fsdb = <STDIN>;
+  chomp($fsdb);
+  &CheckFSDB($fsdb);
+
+##Signal name
+  print "Enter signal name (ex:v-out,i-out,v-psclk...): \n";
+  $sig_name = <STDIN>;
+  chomp($sig_name);
+  #if($sig_name =~ /^(\w+)-(\w+)/){
+  #  $sig_name = "$1($2";
+  #}
+  &CheckSname($sig_name);
+
+##time
+  print "Enter signal time(ns):\n";
+  $time = <STDIN>;
+  chomp($time);
+  if($time =~ /\d+\.*\d*\s+\w*s/){
+    $time =~ s/\s+//g;
+  }
+  &CheckTime($time);
+
+##Begin number
+  print "Enter begin number:\n";
+  $sig_bn = <STDIN>;
+  chomp($sig_bn);
+  &CheckNum($sig_bn);
+
+##End number
+  print "Enter end number:\n";
+  $sig_en = <STDIN>;
+  chomp($sig_en);
+  &CheckNum($sig_en);
+
+  &CheckParameter($fsdb,$time,$sig_bn,$sig_en,$sig_name);
+
+  return($fsdb,$time,$sig_bn,$sig_en,$sig_name);
+}
+
+## Parsing ARGV
+sub Parse{
+  my ($fsdb,$time,$sig_bn,$sig_en,$sig_snum,$sig_name,$logfile) = ('')x7;
+  my $mode = 1;
+
+#print Dumper(@ARGV);
+  for(my $i=0; $i <= $#ARGV; $i++){
+    if( $ARGV[$i] =~ /^-f/ ){
+      $fsdb = $ARGV[$i+1];
+      &CheckFSDB($fsdb);
+      $i++;
+    }elsif( $ARGV[$i] =~ /^-t/ ){
+      $time = $ARGV[$i+1];
+      &CheckTime($time);
+      $i++;
+    }elsif( $ARGV[$i] =~ /^-mode/ ){
+      $mode = $ARGV[$i+1];
+      &CheckMode($mode);
+      $i++;
+    }elsif( $ARGV[$i] =~ /^-bn/ ){
+      $sig_bn = $ARGV[$i+1];
+      &CheckNum($sig_bn);
+      $i++;
+    }elsif( $ARGV[$i] =~ /^-en/ ){
+      $sig_en = $ARGV[$i+1];
+      &CheckNum($sig_en);
+      $i++;
+    }elsif( $ARGV[$i] =~ /^-snum/ ){
+      $sig_snum = $ARGV[$i+1];
+      &CheckNum($sig_snum);
+      $i++;
+    }elsif( $ARGV[$i] =~ /^-name/ ){
+      $sig_name = $ARGV[$i+1];
+      #if($sig_name =~ /^(\w+)-(\w+)/){
+      #  $sig_name = "$1($2";
+      #}
+      &CheckSname($sig_name);
+      $i++;
+    }elsif( $ARGV[$i] =~ /^-o/ ){
+      $logfile = $ARGV[$i+1];
+      $i++;
+    }elsif(( $ARGV[$i] =~ /^-h/ ) || ( $ARGV[$i] =~ /^-[H|h][E|e][L|l][P|p]/)){
+      &PrintHelp;
+    }else{
+      &PrintHelp;
+    }
+  }
+
+## get logfile name from FSDB name
+if($logfile eq ""){
+  my @reg = split(/\./,`basename $fsdb|tr -d "\n"`);
+  $logfile = "$reg[0].log";
+}
+
+## Override signal number
+  if($sig_snum ne ""){
+    $sig_bn = $sig_snum;
+    $sig_en = $sig_snum;
+  }
+  &CheckParameter($fsdb,$time,$sig_bn,$sig_en,$sig_name);
+
+  return($fsdb,$time,$sig_bn,$sig_en,$sig_name,$logfile,$mode);
+}
+
+
+sub CheckFSDB{
+  my $fsdb = shift;
+  if(! -f $fsdb){
+    print color('bold red');
+    print "Input error : Can't find FSDB file\n";
+    print color('reset');
+    exit;
+  }
+}
+
+sub CheckSname{
+  my $sig_name = shift;
+  #if($sig_name !~ /^\w+\(\w+/){
+  if($sig_name !~ /^\w+\-\w+/){
+    print color('bold red');
+    print "Err: Signal name format error\n";
+    print color('reset');
+    &PrintHelp;
+  }
+}
+
+sub CheckTime{
+  my $time = shift;
+
+  if($time !~ /\d+\.*\d*/){
+    print color('bold red');
+    print "Time format error : \n\tex: 0.2us or 200 or 200ns.\n";
+    print color('reset');
+    exit;
+  }
+}
+
+sub CheckNum{
+  my $num = shift;
+  
+  if($num eq ""){
+    return;
+  }elsif($num !~ /^\d+$/){
+    print color('bold red');
+    print "Input error : Only allow digital\n";
+    print color('reset');
+    exit;
+  }
+}
+
+sub CheckMode{
+  my $mode = shift;
+  
+  if($mode !~ /^\d$/){
+    print color('bold red');
+    print "Input error : Only allow enter 1 or 2\n";
+    print color('reset');
+    exit;
+  }
+}
+
+sub CheckParameter{
+  my($fsdb,$time,$sig_bn,$sig_en,$sig_name) = @_;
+
+  ## no parameter
+  #if(($fsdb eq "") || ($time eq "") || ($sig_bn eq "") || ($sig_en eq "") || ($sig_name eq "")){
+  if(($fsdb eq "") || ($time eq "")  || ($sig_name eq "")){
+    print color('bold red');
+    print "Err: Missing some paremeter\n";
+    print "\tFSDB file : $fsdb\n";
+    if($sig_name eq ""){
+      print "\tSignal name : $sig_name\n";
+    }else{
+      print "\tSignal name : $sig_name\)\n";
+    }
+    if($time =~ /\d+/){
+      print "\tSignal time : $time\n";
+    }else{
+      print "\tSignal time : ${time}ns\n";
+    }
+    if(($sig_bn ne "") || ($sig_en ne "")){
+      print "\tBegin number : $sig_bn\n";
+      print "\tEnd number : $sig_en\n";
+    }
+    print color('reset');
+    &PrintHelp;
+  }
+}
+
+
+##help
+
+sub PrintHelp{
+  print "\n  Usage :\n";
+  print "\t$script -f <fsdb> -name <signal name> -t <time>[unit] [-bn <number> -en <number>] [-o <log>]\n";
+  print "\n  Options :\n";
+  print "\t-f <fsdb file>\n\n ";
+  print "\t-name <signal name> \n\t\tThe signal name can be v-out (\'v(out)\'), v-dio (\'v(dio)\'), i-out (\'i(out)\'), i-vls (\'i(vls)\') ...etc.\n\n";
+  print "\t-t time[unit]\n\t\tThe time-unit can be Ms, Ks, s, ms, us, ns, ps, or fs.(default time unit is ns.)\n\n ";
+  print "\t-bn <number> \n\t\tBegin signal number of the report\n\n ";
+  print "\t-en <number> \n\t\tEnd signal number of the report\n\n ";
+  print "\t-snum <number> \n\t\tSpecify one signal number, If setting this option , the -bn and -en will be ignored.\n\n ";
+  print "\t-o <log file>\n\t\tDefault is Autocheck.log\n\n";
+  print "\t-h \n\t\tPrint this usage.\n\n";
+  print "\nExample:\n";
+  print "\t1. Report FSDB signal value from v(out<1>) to v(out<50>) at 11.2us.\n";
+  print "\t$script -f trf080_nosuhd.fsdb -name v-out -t 11.2us -bn 1 -en 50 \n\n";
+  print "\t2. Report FSDB signal value v(psclk) at 11.2us.\n";
+  print "\t$script -f trf080_nosuhd.fsdb -name v-psclk -t 11.2us\n\n";
+##exit after print help
+  exit ;
+}
